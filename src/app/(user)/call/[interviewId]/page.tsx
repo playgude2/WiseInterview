@@ -4,7 +4,6 @@ import { useInterviews } from "@/contexts/interviews.context";
 import { useEffect, useState } from "react";
 import Call from "@/components/call";
 import Image from "next/image";
-import { ArrowUpRightSquareIcon } from "lucide-react";
 import { Interview } from "@/types/interview";
 import LoaderWithText from "@/components/loaders/loader-with-text/loaderWithText";
 
@@ -28,20 +27,12 @@ function PopupLoader() {
           <LoaderWithText />
         </div>
       </div>
-      <a
-        className="flex flex-row justify-center align-middle mt-3"
-        href="https://folo-up.co/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
         <div className="text-center text-md font-semibold mr-2">
           Powered by{" "}
           <span className="font-bold">
             Wise<span className="text-indigo-600">Interview</span>
           </span>
         </div>
-        <ArrowUpRightSquareIcon className="h-[1.5rem] w-[1.5rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-indigo-500" />
-      </a>
     </div>
   );
 }
@@ -62,20 +53,12 @@ function PopUpMessage({ title, description, image }: PopupProps) {
           <p>{description}</p>
         </div>
       </div>
-      <a
-        className="flex flex-row justify-center align-middle mt-3"
-        href="https://folo-up.co/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
         <div className="text-center text-md font-semibold mr-2">
           Powered by{" "}
           <span className="font-bold">
             Wise<span className="text-indigo-600">Interview</span>
           </span>
         </div>
-        <ArrowUpRightSquareIcon className="h-[1.5rem] w-[1.5rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-indigo-500" />
-      </a>
     </div>
   );
 }

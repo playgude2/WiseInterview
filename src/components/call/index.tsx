@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ArrowUpRightSquareIcon,
   AlarmClockIcon,
   XCircleIcon,
   CheckCircleIcon,
@@ -556,19 +555,12 @@ function Call({ interview }: InterviewProps) {
             )}
           </div>
         </Card>
-        <a
-          className="flex flex-row justify-center align-middle mt-3"
-          href="https://folo-up.co/"
-          target="_blank"
-        >
           <div className="text-center text-md font-semibold mr-2  ">
             Powered by{" "}
             <span className="font-bold">
               Wise<span className="text-indigo-600">Interview</span>
             </span>
           </div>
-          <ArrowUpRightSquareIcon className="h-[1.5rem] w-[1.5rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-indigo-500 " />
-        </a>
       </div>
     </div>
   );
