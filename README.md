@@ -1,7 +1,3 @@
-[![GitHub stars](https://img.shields.io/github/stars/WiseInterview/WiseInterview?style=social)](https://github.com/WiseInterview/WiseInterview/stargazers)
-![License](https://img.shields.io/github/license/wiseinterview/wiseinterview)
-[![Twitter Follow](https://img.shields.io/twitter/follow/SuveenE?style=social)](https://x.com/SuveenE)
-
 # Wise Interview - AI-powered voice interviewer for hiring 💼
 
 Wise Interview is an open source platform for companies to conduct AI powered hiring interviews with their candidates.
