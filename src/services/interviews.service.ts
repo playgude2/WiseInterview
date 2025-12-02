@@ -20,16 +20,47 @@ const getAllInterviews = async (userId: string, organizationId: string) => {
 
 const getInterviewById = async (id: string) => {
   try {
-    const { data, error } = await supabase
+    const slugify = (str: string) => {
+      return str
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/[\s_-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    };
+
+    const normalizedId = slugify(id);
+
+    // First try exact ID match
+    const { data: idMatch } = await supabase
       .from("interview")
       .select(`*`)
-      .or(`id.eq.${id},readable_slug.eq.${id}`);
+      .eq("id", id)
+      .single();
 
-    return data ? data[0] : null;
+    if (idMatch) {
+      return idMatch;
+    }
+
+    // If not found by ID, try to match by slug (with normalization)
+    const { data: allData } = await supabase
+      .from("interview")
+      .select(`*`)
+      .limit(1000);
+
+    if (allData) {
+      const matched = allData.find(
+        (interview: any) =>
+          slugify(interview.readable_slug || "") === normalizedId
+      );
+
+      return matched || null;
+    }
+
+    return null;
   } catch (error) {
     console.log(error);
 
-    return [];
+    return null;
   }
 };
 

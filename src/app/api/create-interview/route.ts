@@ -17,10 +17,15 @@ export async function POST(req: Request, res: Response) {
 
     let readableSlug = null;
     if (body.organizationName) {
-      const interviewNameSlug = payload.name?.toLowerCase().replace(/\s/g, "-");
-      const orgNameSlug = body.organizationName
-        ?.toLowerCase()
-        .replace(/\s/g, "-");
+      const slugify = (str: string) => {
+        return str
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, "")
+          .replace(/[\s_-]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      };
+      const interviewNameSlug = slugify(payload.name || "");
+      const orgNameSlug = slugify(body.organizationName || "");
       readableSlug = `${orgNameSlug}-${interviewNameSlug}`;
     }
 
