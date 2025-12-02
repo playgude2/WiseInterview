@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { useInterviewers } from "@/contexts/interviewers.context";
 import { InterviewerService } from "@/services/interviewers.service";
 import axios from "axios";
 import { Plus, Loader2 } from "lucide-react";
@@ -8,20 +9,27 @@ import { useState } from "react";
 
 function CreateInterviewerButton() {
   const [isLoading, setIsLoading] = useState(false);
+  const { setInterviewers } = useInterviewers();
 
   const createInterviewers = async () => {
-    setIsLoading(true);
-    const response = await axios.get("/api/create-interviewer", {});
-    console.log(response);
-    setIsLoading(false);
-    InterviewerService.getAllInterviewers();
+    try {
+      setIsLoading(true);
+      await axios.get("/api/create-interviewer");
+      // Refresh the interviewers list
+      const updated = await InterviewerService.getAllInterviewers();
+      setInterviewers(updated);
+    } catch (error) {
+      console.error("Failed to create interviewers:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <>
       <Card
-        className="p-0 inline-block cursor-pointer hover:scale-105 ease-in-out duration-300 h-40 w-36 ml-1 mr-3 rounded-xl shrink-0 overflow-hidden shadow-md"
-        onClick={() => createInterviewers()}
+        className={`p-0 inline-block cursor-pointer hover:scale-105 ease-in-out duration-300 h-40 w-36 ml-1 mr-3 rounded-xl shrink-0 overflow-hidden shadow-md ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+        onClick={() => !isLoading && createInterviewers()}
       >
         <CardContent className="p-0">
           {isLoading ? (
