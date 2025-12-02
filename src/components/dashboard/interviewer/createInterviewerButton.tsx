@@ -2,22 +2,21 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { useInterviewers } from "@/contexts/interviewers.context";
-import { InterviewerService } from "@/services/interviewers.service";
 import axios from "axios";
 import { Plus, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 function CreateInterviewerButton() {
   const [isLoading, setIsLoading] = useState(false);
-  const { setInterviewers } = useInterviewers();
+  const { refetchInterviewers } = useInterviewers();
 
   const createInterviewers = async () => {
+    if (isLoading) return; // Prevent double-click
     try {
       setIsLoading(true);
       await axios.get("/api/create-interviewer");
-      // Refresh the interviewers list
-      const updated = await InterviewerService.getAllInterviewers();
-      setInterviewers(updated);
+      // Refetch the list after creation completes
+      await refetchInterviewers();
     } catch (error) {
       console.error("Failed to create interviewers:", error);
     } finally {
