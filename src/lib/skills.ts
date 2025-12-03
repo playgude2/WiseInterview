@@ -306,3 +306,69 @@ export function extractSkillsFromDescription(description: string): Skill[] {
       index === self.findIndex((s) => s.name === skill.name),
   );
 }
+
+/**
+ * Extract keywords from interview description
+ * Extracts relevant soft skills, domains, and expertise areas
+ */
+export function extractKeywordsFromDescription(description: string): string[] {
+  if (!description) {return [];}
+
+  const descriptionLower = description.toLowerCase();
+
+  const keywords = [
+    // Leadership & Management
+    "leadership",
+    "management",
+    "strategic vision",
+    "strategic planning",
+    "executive leadership",
+    "team leadership",
+    // Technical Leadership
+    "technical leadership",
+    "architecture",
+    "system design",
+    // Business & Strategy
+    "business strategy",
+    "product strategy",
+    "product management",
+    "stakeholder management",
+    // People & Culture
+    "team building",
+    "mentoring",
+    "coaching",
+    "communication",
+    // AI & Innovation
+    "artificial intelligence",
+    "machine learning",
+    "tech innovation",
+    "innovation",
+    "emerging technologies",
+    // Domain expertise
+    "full-stack",
+    "frontend",
+    "backend",
+    "cloud architecture",
+    "devops",
+    // Soft skills
+    "problem solving",
+    "critical thinking",
+    "analytical",
+    "collaboration",
+    "project management",
+    "agile",
+    "scrum",
+  ];
+
+  const foundKeywords = new Set<string>();
+
+  keywords.forEach((keyword) => {
+    const escapedKeyword = escapeRegex(keyword);
+    const regex = new RegExp(`\\b${escapedKeyword}\\b`, "gi");
+    if (regex.test(descriptionLower)) {
+      foundKeywords.add(keyword.charAt(0).toUpperCase() + keyword.slice(1));
+    }
+  });
+
+  return Array.from(foundKeywords).slice(0, 5);
+}

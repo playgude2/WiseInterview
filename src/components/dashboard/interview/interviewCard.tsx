@@ -9,7 +9,7 @@ import { ResponseService } from "@/services/responses.service";
 import axios from "axios";
 import MiniLoader from "@/components/loaders/mini-loader/miniLoader";
 import { InterviewerService } from "@/services/interviewers.service";
-import { extractSkillsFromDescription } from "@/lib/skills";
+import { extractSkillsFromDescription, extractKeywordsFromDescription } from "@/lib/skills";
 
 interface Props {
   name: string | null;
@@ -42,6 +42,7 @@ function InterviewCard({
   const [img, setImg] = useState("");
   const [interviewerName, setInterviewerName] = useState("");
   const [skills, setSkills] = useState<any[]>([]);
+  const [keywords, setKeywords] = useState<string[]>([]);
   const [fetchedRespondents, setFetchedRespondents] = useState<string[]>([]);
 
   const desc = description ?? "";
@@ -66,6 +67,14 @@ function InterviewCard({
     if (desc) {
       const extractedSkills = extractSkillsFromDescription(desc);
       setSkills(extractedSkills);
+
+      // If no skills found, extract keywords instead
+      if (extractedSkills.length === 0) {
+        const extractedKeywords = extractKeywordsFromDescription(desc);
+        setKeywords(extractedKeywords);
+      } else {
+        setKeywords([]);
+      }
     }
   }, [desc]);
 
@@ -176,58 +185,59 @@ function InterviewCard({
       }}
     >
       <CardContent className={`p-0 flex flex-col h-full`}>
-        {/* Header Section */}
-        <div className={`w-full px-4 pt-4 pb-3 ${selectedThemeColor}`}>
-          <CardTitle className="text-white text-base font-semibold line-clamp-2">
+        {/* Header Section - Fixed height to prevent wrapping issues */}
+        <div className={`w-full px-4 pt-3 pb-2 ${selectedThemeColor} min-h-[60px]`}>
+          <CardTitle className="text-white text-sm font-semibold line-clamp-2 break-words">
             {name}
           </CardTitle>
           {isFetching && (
-            <div className="mt-2">
+            <div className="mt-1">
               <MiniLoader />
             </div>
           )}
         </div>
 
-        {/* Skills Section with NEW Badge */}
-        {(skills.length > 0 || isNew) && (
+        {/* Skills/Keywords Section with NEW Badge */}
+        {(skills.length > 0 || keywords.length > 0 || isNew) && (
           <div className="px-4 py-2 border-b border-gray-100">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-gray-700">Skills:</p>
+              <p className="text-xs font-medium text-gray-700">
+                {skills.length > 0 ? "Skills:" : "Keywords:"}
+              </p>
               {isNew && (
-                <span className="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                <span className="bg-green-500 text-white text-xs font-semibold px-2 py-0.5 rounded">
                   NEW
                 </span>
               )}
             </div>
+
+            {/* Skills Display */}
             {skills.length > 0 && (
-              <div className="flex items-center">
-                <div className="flex -space-x-1">
-                  {skills.slice(0, 4).map((skill, idx) => (
+              <div className="flex items-center flex-wrap gap-1">
+                {skills.slice(0, 4).map((skill) => (
+                  <div
+                    key={skill.name}
+                    className="group relative"
+                  >
                     <div
-                      key={skill.name}
-                      className="group relative"
-                      style={{ zIndex: 4 - idx }}
+                      className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors cursor-pointer border border-gray-200 shadow-sm"
+                      title={skill.name}
                     >
-                      <div
-                        className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors cursor-pointer border border-gray-200 shadow-sm"
-                        title={skill.name}
-                      >
-                        <Image
-                          src={skill.logo}
-                          alt={skill.name}
-                          width={20}
-                          height={20}
-                          className="w-5 h-5 object-contain"
-                        />
-                      </div>
-                      <div className="invisible group-hover:visible absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap z-50">
-                        {skill.name}
-                      </div>
+                      <Image
+                        src={skill.logo}
+                        alt={skill.name}
+                        width={20}
+                        height={20}
+                        className="w-5 h-5 object-contain"
+                      />
                     </div>
-                  ))}
-                </div>
+                    <div className="invisible group-hover:visible absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap z-50">
+                      {skill.name}
+                    </div>
+                  </div>
+                ))}
                 {skills.length > 4 && (
-                  <div className="group relative ml-1">
+                  <div className="group relative">
                     <div className="w-7 h-7 rounded-lg bg-gray-300 flex items-center justify-center text-xs font-bold text-white border border-gray-300 cursor-pointer hover:bg-gray-400 transition-colors shadow-sm">
                       +{skills.length - 4}
                     </div>
@@ -238,20 +248,46 @@ function InterviewCard({
                 )}
               </div>
             )}
+
+            {/* Keywords Display (when no skills) */}
+            {keywords.length > 0 && (
+              <div className="flex items-center flex-wrap gap-0.5">
+                {keywords.slice(0, 3).map((keyword) => (
+                  <span
+                    key={keyword}
+                    className="inline-block bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded-full font-medium"
+                  >
+                    {keyword}
+                  </span>
+                ))}
+                {keywords.length > 3 && (
+                  <div className="group relative">
+                    <span className="inline-block bg-blue-200 text-blue-700 text-xs px-1 py-0.5 rounded-full font-medium cursor-pointer hover:bg-blue-300 transition-colors">
+                      +{keywords.length - 3}
+                    </span>
+                    <div className="invisible group-hover:visible absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap z-50 max-w-xs">
+                      {keywords.slice(3).join(", ")}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
-        {/* Description Section */}
-        {desc && (
-          <div className="px-4 py-2">
-            <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
-              {desc}
-            </p>
-          </div>
-        )}
+        {/* Middle Content - Flexible Section */}
+        <div className="flex-1 flex flex-col">
+          {/* Description Section */}
+          {desc && (
+            <div className="px-4 py-2">
+              <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
+                {desc}
+              </p>
+            </div>
+          )}
 
-        {/* Interviewer & Respondents Section */}
-        <div className="px-4 py-3 border-t border-gray-100 flex-shrink-0">
+          {/* Interviewer & Respondents Section */}
+          <div className="px-4 py-3 border-t border-gray-100">
           {/* Respondent Avatars */}
           <div className="space-y-1 mb-4">
             <p className="text-xs font-medium text-gray-700">Respondents:</p>
@@ -313,6 +349,7 @@ function InterviewCard({
                 {responseCount?.toString() || 0} responses
               </p>
             </div>
+          </div>
           </div>
         </div>
 
