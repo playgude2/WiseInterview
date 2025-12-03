@@ -8,6 +8,7 @@ import { ResponseService } from "@/services/responses.service";
 import axios from "axios";
 import { InterviewerService } from "@/services/interviewers.service";
 import { extractSkillsFromDescription, extractKeywordsFromDescription } from "@/lib/skills";
+import ShareInterviewModal from "@/components/dashboard/interview/shareInterviewModal";
 
 interface Props {
   name: string | null;
@@ -42,6 +43,7 @@ function InterviewListItem({
   const [skills, setSkills] = useState<any[]>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [fetchedRespondents, setFetchedRespondents] = useState<string[]>([]);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const desc = description ?? "";
   const respondentsList = fetchedRespondents.length > 0 ? fetchedRespondents : (respondents ?? []);
@@ -136,13 +138,14 @@ function InterviewListItem({
       );
   };
 
-  const handleJumpToInterview = (event: React.MouseEvent) => {
+  const handleShareInterview = (event: React.MouseEvent) => {
     event.stopPropagation();
     event.preventDefault();
-    const interviewUrl = readableSlug
-      ? `/call/${readableSlug}`
-      : `/call/${url}`;
-    window.open(interviewUrl, "_blank");
+    setIsShareModalOpen(true);
+  };
+
+  const getInterviewLink = () => {
+    return readableSlug ? `/call/${readableSlug}` : `/call/${url}`;
   };
 
   const getInitials = (name: string) => {
@@ -262,9 +265,9 @@ function InterviewListItem({
         <Button
           className="text-xs px-2 h-8 text-indigo-600"
           variant={"secondary"}
-          title="View Interview"
+          title="Share Interview"
           disabled={isFetching}
-          onClick={handleJumpToInterview}
+          onClick={handleShareInterview}
         >
           <ArrowUpRight size={14} />
         </Button>
@@ -284,6 +287,12 @@ function InterviewListItem({
           {copied ? <CopyCheck size={14} /> : <Copy size={14} />}
         </Button>
       </div>
+      <ShareInterviewModal
+        isOpen={isShareModalOpen}
+        interviewLink={getInterviewLink()}
+        interviewName={name || "Interview"}
+        onClose={() => setIsShareModalOpen(false)}
+      />
     </div>
   );
 }

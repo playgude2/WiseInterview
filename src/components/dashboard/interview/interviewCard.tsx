@@ -10,6 +10,7 @@ import axios from "axios";
 import MiniLoader from "@/components/loaders/mini-loader/miniLoader";
 import { InterviewerService } from "@/services/interviewers.service";
 import { extractSkillsFromDescription, extractKeywordsFromDescription } from "@/lib/skills";
+import ShareInterviewModal from "@/components/dashboard/interview/shareInterviewModal";
 
 interface Props {
   name: string | null;
@@ -44,6 +45,7 @@ function InterviewCard({
   const [skills, setSkills] = useState<any[]>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [fetchedRespondents, setFetchedRespondents] = useState<string[]>([]);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const desc = description ?? "";
   const respondentsList = fetchedRespondents.length > 0 ? fetchedRespondents : (respondents ?? []);
@@ -147,13 +149,14 @@ function InterviewCard({
       );
   };
 
-  const handleJumpToInterview = (event: React.MouseEvent) => {
+  const handleShareInterview = (event: React.MouseEvent) => {
     event.stopPropagation();
     event.preventDefault();
-    const interviewUrl = readableSlug
-      ? `/call/${readableSlug}`
-      : `/call/${url}`;
-    window.open(interviewUrl, "_blank");
+    setIsShareModalOpen(true);
+  };
+
+  const getInterviewLink = () => {
+    return readableSlug ? `/call/${readableSlug}` : `/call/${url}`;
   };
 
   const getInitials = (name: string) => {
@@ -374,9 +377,9 @@ function InterviewCard({
           <Button
             className="text-xs px-3 h-9 text-indigo-600"
             variant={"secondary"}
-            title="View Interview"
+            title="Share Interview"
             disabled={isFetching}
-            onClick={handleJumpToInterview}
+            onClick={handleShareInterview}
           >
             <ArrowUpRight size={16} />
           </Button>
@@ -397,6 +400,12 @@ function InterviewCard({
           </Button>
         </div>
       </CardContent>
+      <ShareInterviewModal
+        isOpen={isShareModalOpen}
+        interviewLink={getInterviewLink()}
+        interviewName={name || "Interview"}
+        onClose={() => setIsShareModalOpen(false)}
+      />
     </Card>
   );
 }
