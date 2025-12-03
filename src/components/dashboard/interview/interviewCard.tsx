@@ -88,7 +88,7 @@ function InterviewCard({
         const respondentNames = responses
           .map((response: any) => response.name)
           .filter((name: string) => name && name.trim());
-        const uniqueRespondents = Array.from(new Set(respondentNames));
+        const uniqueRespondents = Array.from(new Set<string>(respondentNames));
         setFetchedRespondents(uniqueRespondents);
 
         if (responses.length > 0) {
