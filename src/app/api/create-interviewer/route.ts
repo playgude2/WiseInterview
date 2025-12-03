@@ -22,7 +22,7 @@ export async function POST() {
 
     logger.info("create-interviewer request received");
     const newModel = await retellClient.llm.create({
-      model: "gpt-4o",
+      model: "gemini-2.5-flash",
       general_prompt: RETELL_AGENT_GENERAL_PROMPT,
       general_tools: [
         {
