@@ -179,7 +179,7 @@ function InterviewCard({
     themeColorMap.indigo;
 
   return (
-    <Card className="relative p-0 mt-4 inline-block w-72 h-96 ml-1 mr-3 rounded-xl shrink-0 overflow-hidden shadow-md hover:shadow-lg transition-shadow"
+    <Card className="relative p-0 w-full h-96 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow"
       style={{
         opacity: isFetching ? 0.6 : 1,
       }}
