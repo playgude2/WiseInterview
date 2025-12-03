@@ -6,9 +6,7 @@ import { Response } from "@/types/response";
 import React, { useEffect, useState } from "react";
 import { UserCircleIcon, SmileIcon, Info } from "lucide-react";
 import { useInterviewers } from "@/contexts/interviewers.context";
-import { PieChart } from "@mui/x-charts/PieChart";
 import { CandidateStatus } from "@/lib/enum";
-import { convertSecondstoMMSS } from "@/lib/utils";
 import Image from "next/image";
 import {
   Tooltip,
@@ -20,6 +18,25 @@ import DataTable, {
   TableData,
 } from "@/components/dashboard/interview/dataTable";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  PieChartVariant,
+  DonutChartVariant,
+  BarChartVariant,
+  StackedBarChartVariant,
+  VerticalBarChartVariant,
+  RadialChartVariant,
+  NumericGaugeChart,
+  NumericLinearChart,
+} from "@/components/ui/chart-variants";
+import { extractSkillsFromDescription } from "@/lib/skills";
+import { SkillsDisplay } from "@/components/dashboard/interview/skillsDisplay";
 
 type SummaryProps = {
   responses: Response[];
@@ -70,6 +87,124 @@ function SummaryInfo({ responses, interview }: SummaryProps) {
   });
 
   const [tableData, setTableData] = useState<TableData[]>([]);
+
+  // Chart style states
+  const [sentimentChartStyle, setSentimentChartStyle] = useState<string>("pie");
+  const [statusChartStyle, setStatusChartStyle] = useState<string>("bar");
+
+  // Rendering functions for each metric
+  const renderDurationChart = () => {
+    const avgDurationSeconds = totalDuration / responses.length;
+    const avgDurationMinutes = parseFloat((avgDurationSeconds / 60).toFixed(2));
+
+    return (
+      <NumericLinearChart
+        value={avgDurationMinutes}
+        maxValue={60}
+        label="Average Duration"
+        percentage={(avgDurationMinutes / 60) * 100}
+        unit={`${avgDurationMinutes.toFixed(2)} min`}
+      />
+    );
+  };
+
+  const renderCompletionChart = () => {
+    const completionPercentage = Math.round(
+      (completedInterviews / responses.length) * 10000,
+    ) / 100;
+
+    return (
+      <NumericGaugeChart
+        value={completionPercentage}
+        maxValue={100}
+        label="Interview Completion Rate"
+        percentage={completionPercentage}
+        unit="%"
+      />
+    );
+  };
+
+  const renderSentimentChart = () => {
+    const sentimentData = [
+      {
+        id: 0,
+        value: sentimentCount.positive,
+        label: `Positive (${sentimentCount.positive})`,
+        color: "#22c55e",
+      },
+      {
+        id: 1,
+        value: sentimentCount.neutral,
+        label: `Neutral (${sentimentCount.neutral})`,
+        color: "#eab308",
+      },
+      {
+        id: 2,
+        value: sentimentCount.negative,
+        label: `Negative (${sentimentCount.negative})`,
+        color: "#eb4444",
+      },
+    ];
+
+    switch (sentimentChartStyle) {
+      case "donut":
+        return <DonutChartVariant data={sentimentData} label="Candidate Sentiment" />;
+      case "bar":
+        return <BarChartVariant data={sentimentData} label="Candidate Sentiment" />;
+      case "stacked":
+        return <StackedBarChartVariant data={sentimentData} label="Candidate Sentiment" />;
+      case "vertical":
+        return <VerticalBarChartVariant data={sentimentData} label="Candidate Sentiment" />;
+      case "radial":
+        return <RadialChartVariant data={sentimentData} label="Candidate Sentiment" />;
+      default:
+        return <PieChartVariant data={sentimentData} label="Candidate Sentiment" />;
+    }
+  };
+
+  const renderStatusChart = () => {
+    const statusData = [
+      {
+        id: 0,
+        value: candidateStatusCount[CandidateStatus.SELECTED],
+        label: `Selected (${candidateStatusCount[CandidateStatus.SELECTED]})`,
+        color: "#22c55e",
+      },
+      {
+        id: 1,
+        value: candidateStatusCount[CandidateStatus.POTENTIAL],
+        label: `Potential (${candidateStatusCount[CandidateStatus.POTENTIAL]})`,
+        color: "#eab308",
+      },
+      {
+        id: 2,
+        value: candidateStatusCount[CandidateStatus.NOT_SELECTED],
+        label: `Not Selected (${candidateStatusCount[CandidateStatus.NOT_SELECTED]})`,
+        color: "#eb4444",
+      },
+      {
+        id: 3,
+        value: candidateStatusCount[CandidateStatus.NO_STATUS],
+        label: `No Status (${candidateStatusCount[CandidateStatus.NO_STATUS]})`,
+        color: "#9ca3af",
+      },
+    ];
+
+    switch (statusChartStyle) {
+      case "donut":
+        return <DonutChartVariant data={statusData} label="Candidate Status" />;
+      case "bar":
+        return <BarChartVariant data={statusData} label="Candidate Status" />;
+      case "stacked":
+        return <StackedBarChartVariant data={statusData} label="Candidate Status" />;
+      case "vertical":
+        return <VerticalBarChartVariant data={statusData} label="Candidate Status" />;
+      case "radial":
+        return <RadialChartVariant data={statusData} label="Candidate Status" />;
+      default:
+        return <PieChartVariant data={statusData} label="Candidate Status" />;
+    }
+  };
 
   const prepareTableData = (responses: Response[]): TableData[] => {
     return responses.map((response) => ({
@@ -183,153 +318,94 @@ function SummaryInfo({ responses, interview }: SummaryProps) {
               <span className="font-medium">{interviewer?.name}</span>
             </p>
           </div>
-          <p className="my-3 ml-2 text-sm">
-            Interview Description:{" "}
-            <span className="font-medium">{interview?.description}</span>
-          </p>
+          <div className="my-3 ml-2">
+            <p className="text-sm">
+              Interview Description:{" "}
+              <span className="font-medium">{interview?.description}</span>
+            </p>
+            <div className="mt-3 flex flex-col gap-2">
+              <p className="text-sm font-medium">Skills & Technologies:</p>
+              <SkillsDisplay
+                skills={extractSkillsFromDescription(
+                  interview?.description || "",
+                )}
+              />
+            </div>
+          </div>
           <div className="flex flex-col gap-1 my-2 mt-4 mx-2 p-4 rounded-2xl bg-slate-50 shadow-md">
             <ScrollArea className="h-[250px]">
               <DataTable data={tableData} interviewId={interview?.id || ""} />
             </ScrollArea>
           </div>
-          <div className="flex flex-row gap-1 my-2 justify-center">
+          <div className="flex flex-row gap-1 my-2 justify-center flex-wrap">
             <div className="flex flex-col">
               <div className="flex flex-col gap-1 my-2 mt-4 mx-2 p-3 rounded-2xl bg-slate-50 shadow-md max-w-[400px]">
-                <div className="flex flex-row items-center justify-center gap-1 font-semibold mb-1 text-[15px]">
-                  Average Duration
+                <div className="flex items-center gap-1 font-semibold mb-2">
+                  <span className="text-[15px]">Average Duration</span>
                   <InfoTooltip content="Average time users took to complete an interview" />
                 </div>
                 <div className="flex items-center justify-center">
-                  <p className="text-2xl font-semibold text-indigo-600 w-fit p-1 px-2 bg-indigo-100 rounded-md">
-                    {convertSecondstoMMSS(totalDuration / responses.length)}
-                  </p>
+                  {renderDurationChart()}
                 </div>
               </div>
               <div className="flex flex-col items-center justify-center gap-1 mx-2 p-3 rounded-2xl bg-slate-50 shadow-md max-w-[360px]">
-                <div className="flex flex-row gap-1 font-semibold mb-1 text-[15px] mx-auto text-center">
-                  Interview Completion Rate
+                <div className="flex items-center gap-1 font-semibold mb-2">
+                  <span className="text-[15px]">Completion Rate</span>
                   <InfoTooltip content="Percentage of interviews completed successfully" />
                 </div>
-                <p className="w-fit text-2xl font-semibold text-indigo-600  p-1 px-2 bg-indigo-100 rounded-md">
-                  {Math.round(
-                    (completedInterviews / responses.length) * 10000,
-                  ) / 100}
-                  %
-                </p>
+                <div className="flex items-center justify-center w-full">
+                  {renderCompletionChart()}
+                </div>
               </div>
-            </div>
-            <div className="flex flex-col gap-1 my-2 mt-4 mx-2 p-4 rounded-2xl bg-slate-50 shadow-md max-w-[360px]">
-              <div className="flex flex-row gap-2 text-[15px] font-bold mb-3 mx-auto">
-                <SmileIcon />
-                Candidate Sentiment
-                <InfoTooltip content="Distribution of user sentiments during interviews" />
-              </div>
-              <PieChart
-                sx={{
-                  "& .MuiChartsLegend-series text": {
-                    fontSize: "0.8rem !important",
-                  },
-                }}
-                series={[
-                  {
-                    data: [
-                      {
-                        id: 0,
-                        value: sentimentCount.positive,
-                        label: `Positive (${sentimentCount.positive})`,
-                        color: "#22c55e",
-                      },
-                      {
-                        id: 1,
-                        value: sentimentCount.neutral,
-                        label: `Neutral (${sentimentCount.neutral})`,
-                        color: "#eab308",
-                      },
-                      {
-                        id: 2,
-                        value: sentimentCount.negative,
-                        label: `Negative (${sentimentCount.negative})`,
-                        color: "#eb4444",
-                      },
-                    ],
-                    highlightScope: { faded: "global", highlighted: "item" },
-                    faded: {
-                      innerRadius: 10,
-                      additionalRadius: -10,
-                      color: "gray",
-                    },
-                  },
-                ]}
-                width={360}
-                height={120}
-              />
             </div>
             <div className="flex flex-col gap-1 my-2 mt-4 mx-2 p-4 rounded-2xl bg-slate-50 shadow-md">
-              <div className="flex flex-row gap-2 text-[15px] font-bold mx-auto mb-1">
-                <UserCircleIcon />
-                Candidate Status
-                <InfoTooltip content="Breakdown of the candidate selection status" />
+              <div className="flex flex-row items-center justify-between gap-2 font-bold mb-3">
+                <div className="flex items-center gap-2">
+                  <SmileIcon />
+                  <span>Candidate Sentiment</span>
+                  <InfoTooltip content="Distribution of user sentiments during interviews" />
+                </div>
+                <Select value={sentimentChartStyle} onValueChange={setSentimentChartStyle}>
+                  <SelectTrigger className="w-28 h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pie">Pie</SelectItem>
+                    <SelectItem value="donut">Donut</SelectItem>
+                    <SelectItem value="bar">Bar</SelectItem>
+                    <SelectItem value="stacked">Stacked</SelectItem>
+                    <SelectItem value="vertical">Vertical</SelectItem>
+                    <SelectItem value="radial">Radial</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="text-sm text-center mb-1">
+              {renderSentimentChart()}
+            </div>
+            <div className="flex flex-col gap-1 my-2 mt-4 mx-2 p-4 rounded-2xl bg-slate-50 shadow-md">
+              <div className="flex flex-row items-center justify-between gap-2 font-bold mb-3">
+                <div className="flex items-center gap-2">
+                  <UserCircleIcon />
+                  <span>Candidate Status</span>
+                  <InfoTooltip content="Breakdown of the candidate selection status" />
+                </div>
+                <Select value={statusChartStyle} onValueChange={setStatusChartStyle}>
+                  <SelectTrigger className="w-28 h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pie">Pie</SelectItem>
+                    <SelectItem value="donut">Donut</SelectItem>
+                    <SelectItem value="bar">Bar</SelectItem>
+                    <SelectItem value="stacked">Stacked</SelectItem>
+                    <SelectItem value="vertical">Vertical</SelectItem>
+                    <SelectItem value="radial">Radial</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="text-sm text-center mb-2">
                 Total Responses: {totalResponses}
               </div>
-              <PieChart
-                sx={{
-                  "& .MuiChartsLegend-series text": {
-                    fontSize: "0.8rem !important",
-                  },
-                }}
-                series={[
-                  {
-                    data: [
-                      {
-                        id: 0,
-                        value: candidateStatusCount[CandidateStatus.SELECTED],
-                        label: `Selected (${candidateStatusCount[CandidateStatus.SELECTED]})`,
-                        color: "#22c55e",
-                      },
-                      {
-                        id: 1,
-                        value: candidateStatusCount[CandidateStatus.POTENTIAL],
-                        label: `Potential (${candidateStatusCount[CandidateStatus.POTENTIAL]})`,
-                        color: "#eab308",
-                      },
-                      {
-                        id: 2,
-                        value:
-                          candidateStatusCount[CandidateStatus.NOT_SELECTED],
-                        label: `Not Selected (${candidateStatusCount[CandidateStatus.NOT_SELECTED]})`,
-                        color: "#eb4444",
-                      },
-                      {
-                        id: 3,
-                        value: candidateStatusCount[CandidateStatus.NO_STATUS],
-                        label: `No Status (${candidateStatusCount[CandidateStatus.NO_STATUS]})`,
-                        color: "#9ca3af",
-                      },
-                    ],
-                    highlightScope: { faded: "global", highlighted: "item" },
-                    faded: {
-                      innerRadius: 10,
-                      additionalRadius: -10,
-                      color: "gray",
-                    },
-                  },
-                ]}
-                width={360}
-                height={120}
-                slotProps={{
-                  legend: {
-                    direction: "column",
-                    position: { vertical: "middle", horizontal: "right" },
-                    padding: 0,
-                    itemMarkWidth: 10,
-                    itemMarkHeight: 10,
-                    markGap: 5,
-                    itemGap: 5,
-                  },
-                }}
-              />
+              {renderStatusChart()}
             </div>
           </div>
         </div>

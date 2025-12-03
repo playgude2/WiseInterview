@@ -174,6 +174,10 @@ function Interviews() {
                   name={item.name}
                   url={item.url ?? ""}
                   readableSlug={item.readable_slug}
+                  description={item.description}
+                  respondents={item.respondents}
+                  themeColor={item.theme_color}
+                  createdAt={item.created_at}
                 />
               ))}
             </>

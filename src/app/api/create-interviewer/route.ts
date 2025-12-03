@@ -1,17 +1,26 @@
 import { logger } from "@/lib/logger";
 import { InterviewerService } from "@/services/interviewers.service";
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import Retell from "retell-sdk";
 import { INTERVIEWERS, RETELL_AGENT_GENERAL_PROMPT } from "@/lib/constants";
+import { auth } from "@clerk/nextjs/server";
 
 const retellClient = new Retell({
   apiKey: process.env.RETELL_API_KEY || "",
 });
 
-export async function GET(res: NextRequest) {
-  logger.info("create-interviewer request received");
-
+export async function POST() {
   try {
+    const { userId } = auth();
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 },
+      );
+    }
+
+    logger.info("create-interviewer request received");
     const newModel = await retellClient.llm.create({
       model: "gpt-4o",
       general_prompt: RETELL_AGENT_GENERAL_PROMPT,

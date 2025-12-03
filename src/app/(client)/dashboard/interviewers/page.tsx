@@ -13,14 +13,14 @@ function Interviewers() {
   const slideLeft = () => {
     var slider = document.getElementById("slider");
     if (slider) {
-      slider.scrollLeft = slider.scrollLeft - 190;
+      slider.scrollLeft = slider.scrollLeft - 310;
     }
   };
 
   const slideRight = () => {
     var slider = document.getElementById("slider");
     if (slider) {
-      slider.scrollLeft = slider.scrollLeft + 190;
+      slider.scrollLeft = slider.scrollLeft + 310;
     }
   };
 
@@ -28,9 +28,9 @@ function Interviewers() {
     return (
       <>
         <div className="flex">
-          <div className="h-40 w-36 ml-1 mr-3 flex-none animate-pulse rounded-xl bg-gray-300" />
-          <div className="h-40 w-36 ml-1 mr-3 flex-none animate-pulse rounded-xl bg-gray-300" />
-          <div className="h-40 w-36 ml-1 mr-3 flex-none animate-pulse rounded-xl bg-gray-300" />
+          <div className="h-96 w-72 ml-1 mr-3 flex-none animate-pulse rounded-xl bg-gray-300" />
+          <div className="h-96 w-72 ml-1 mr-3 flex-none animate-pulse rounded-xl bg-gray-300" />
+          <div className="h-96 w-72 ml-1 mr-3 flex-none animate-pulse rounded-xl bg-gray-300" />
         </div>
       </>
     );
@@ -52,7 +52,7 @@ function Interviewers() {
         <div className="relative flex items-center mt-2 ">
           <div
             id="slider"
-            className=" h-44 pt-2 overflow-x-scroll scroll whitespace-nowrap scroll-smooth scrollbar-hide w-[40rem]"
+            className="h-[420px] pt-4 overflow-x-scroll scroll whitespace-nowrap scroll-smooth scrollbar-hide w-[40rem]"
           >
             {interviewers.length === 0 ? <CreateInterviewerButton /> : <></>}
             {!interviewersLoading ? (

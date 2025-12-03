@@ -11,10 +11,12 @@ function CreateInterviewerButton() {
   const { refetchInterviewers } = useInterviewers();
 
   const createInterviewers = async () => {
-    if (isLoading) return; // Prevent double-click
+    if (isLoading) {
+      return; // Prevent double-click
+    }
     try {
       setIsLoading(true);
-      await axios.get("/api/create-interviewer");
+      await axios.post("/api/create-interviewer");
       // Refetch the list after creation completes
       await refetchInterviewers();
     } catch (error) {

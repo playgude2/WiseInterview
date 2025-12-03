@@ -13,7 +13,17 @@ import { useRouter } from "next/navigation";
 import LoaderWithText from "@/components/loaders/loader-with-text/loaderWithText";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CircularProgress } from "@nextui-org/react";
+import {
+  ModernScoreGauge,
+  LinearProgressBar,
+  ProgressPill,
+  BulletGraph,
+  SegmentedProgress,
+  DonutProgress,
+  RadialBar,
+  WaveProgress,
+  MinimalistBadge,
+} from "@/components/ui/progress-variants";
 import QuestionAnswerCard from "@/components/dashboard/interview/questionAnswerCard";
 import { marked } from "marked";
 import {
@@ -59,6 +69,9 @@ function CallInfo({
   const [candidateStatus, setCandidateStatus] = useState<string>("");
   const [interviewId, setInterviewId] = useState<string>("");
   const [tabSwitchCount, setTabSwitchCount] = useState<number>();
+  const [progressStyle, setProgressStyle] = useState<string>("linear");
+
+  type ProgressStyleType = "modern" | "linear" | "pill" | "bullet" | "segmented" | "donut" | "radial" | "wave" | "badge";
 
   useEffect(() => {
     const fetchResponses = async () => {
@@ -154,6 +167,31 @@ function CallInfo({
     }
   };
 
+  const renderProgressComponent = (score: number, maxValue: number, label: string) => {
+    const props = { value: score, maxValue, label };
+
+    switch (progressStyle) {
+      case "linear":
+        return <LinearProgressBar {...props} />;
+      case "pill":
+        return <ProgressPill {...props} />;
+      case "bullet":
+        return <BulletGraph {...props} />;
+      case "segmented":
+        return <SegmentedProgress {...props} />;
+      case "donut":
+        return <DonutProgress {...props} />;
+      case "radial":
+        return <RadialBar {...props} />;
+      case "wave":
+        return <WaveProgress {...props} />;
+      case "badge":
+        return <MinimalistBadge {...props} />;
+      default:
+        return <ModernScoreGauge {...props} />;
+    }
+  };
+
   return (
     <div className="h-screen z-[10] mx-2 mb-[100px] overflow-y-scroll">
       {isLoading ? (
@@ -162,162 +200,168 @@ function CallInfo({
         </div>
       ) : (
         <>
-          <div className="bg-slate-200 rounded-2xl min-h-[120px] p-4 px-5 y-3">
-            <div className="flex flex-col justify-between bt-2">
-              {/* <p className="font-semibold my-2 ml-2">
-                Response Analysis and Insights
-              </p> */}
-              <div>
-                <div className="flex justify-between items-center pb-4 pr-2">
-                  <div
-                    className=" inline-flex items-center text-indigo-600 hover:cursor-pointer"
-                    onClick={() => {
-                      router.push(`/interviews/${interviewId}`);
-                    }}
-                  >
-                    <ArrowLeft className="mr-2" />
-                    <p className="text-sm font-semibold">Back to Summary</p>
-                  </div>
-                  {tabSwitchCount && tabSwitchCount > 0 && (
-                    <p className="text-sm font-semibold text-red-500 bg-red-200 rounded-sm px-2 py-1">
-                      Tab Switching Detected
-                    </p>
-                  )}
-                </div>
+          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl p-4 border border-indigo-200 shadow-sm">
+            <div className="flex justify-between items-start mb-3">
+              <div
+                className="inline-flex items-center text-indigo-600 hover:text-indigo-800 hover:cursor-pointer transition-colors"
+                onClick={() => {
+                  router.push(`/interviews/${interviewId}`);
+                }}
+              >
+                <ArrowLeft className="mr-2 w-4 h-4" />
+                <p className="text-sm font-semibold">Back to Summary</p>
               </div>
-              <div className="flex flex-col justify-between gap-3 w-full">
-                <div className="flex flex-row justify-between">
-                  <div className="flex flex-row gap-3">
-                    <Avatar>
-                      <AvatarFallback>{name ? name[0] : "A"}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      {name && (
-                        <p className="text-sm font-semibold px-2">{name}</p>
-                      )}
-                      {email && <p className="text-sm px-2">{email}</p>}
-                    </div>
+              <div className="h-7">
+                {tabSwitchCount && tabSwitchCount > 0 && (
+                  <div className="flex items-center gap-2 bg-red-100 text-red-700 px-3 py-1.5 rounded-lg">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                    <p className="text-xs font-semibold">Tab Switching Detected</p>
                   </div>
-                  <div className="flex flex-row mr-2 items-center gap-3">
-                    <Select
-                      value={candidateStatus}
-                      onValueChange={async (newValue: string) => {
-                        setCandidateStatus(newValue);
-                        await ResponseService.updateResponse(
-                          { candidate_status: newValue },
-                          call_id,
-                        );
-                        onCandidateStatusChange(call_id, newValue);
-                      }}
-                    >
-                      <SelectTrigger className="w-[180px]  bg-slate-50 rounded-2xl">
-                        <SelectValue placeholder="Not Selected" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={CandidateStatus.NO_STATUS}>
-                          <div className="flex items-center">
-                            <div className="w-3 h-3 bg-gray-400 rounded-full mr-2" />
-                            No Status
-                          </div>
-                        </SelectItem>
-                        <SelectItem value={CandidateStatus.NOT_SELECTED}>
-                          <div className="flex items-center">
-                            <div className="w-3 h-3 bg-red-500 rounded-full mr-2" />
-                            Not Selected
-                          </div>
-                        </SelectItem>
-                        <SelectItem value={CandidateStatus.POTENTIAL}>
-                          <div className="flex items-center">
-                            <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2" />
-                            Potential
-                          </div>
-                        </SelectItem>
-                        <SelectItem value={CandidateStatus.SELECTED}>
-                          <div className="flex items-center">
-                            <div className="w-3 h-3 bg-green-500 rounded-full mr-2" />
-                            Selected
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <AlertDialog>
-                      <AlertDialogTrigger>
-                        <Button
-                          disabled={isClicked}
-                          className="bg-red-500 hover:bg-red-600 p-2"
-                        >
-                          <TrashIcon size={16} className="" />
-                        </Button>
-                      </AlertDialogTrigger>
-
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-
-                          <AlertDialogDescription>
-                            This action cannot be undone. This will permanently
-                            delete this response.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-
-                          <AlertDialogAction
-                            className="bg-indigo-600 hover:bg-indigo-800"
-                            onClick={async () => {
-                              await onDeleteResponseClick();
-                            }}
-                          >
-                            Continue
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                </div>
-                <div className="flex flex-col mt-3">
-                  <p className="font-semibold">Interview Recording</p>
-                  <div className="flex flex-row gap-3 mt-2">
-                    {call?.recording_url && (
-                      <ReactAudioPlayer src={call?.recording_url} controls />
-                    )}
-                    <a
-                      className="my-auto"
-                      href={call?.recording_url}
-                      download=""
-                      aria-label="Download"
-                    >
-                      <DownloadIcon size={20} />
-                    </a>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
-            {/* <div>{call.}</div> */}
+
+            <div className="flex flex-row items-center justify-between gap-4">
+              {/* Candidate Info */}
+              <div className="flex flex-row gap-3 items-center flex-1">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="text-sm font-semibold">{name ? name[0] : "A"}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  {name && (
+                    <p className="text-sm font-semibold text-gray-900 truncate">{name}</p>
+                  )}
+                  {email && <p className="text-xs text-gray-600 truncate">{email}</p>}
+                </div>
+              </div>
+
+              {/* Recording Controls */}
+              {call?.recording_url && (
+                <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-gray-200">
+                  <ReactAudioPlayer style={{ width: "200px" }} src={call?.recording_url} controls />
+                  <a
+                    href={call?.recording_url}
+                    download=""
+                    aria-label="Download"
+                    className="p-1.5 hover:bg-gray-100 rounded-md transition-colors flex-shrink-0"
+                    title="Download recording"
+                  >
+                    <DownloadIcon size={18} className="text-indigo-600" />
+                  </a>
+                </div>
+              )}
+
+              {/* Status and Actions */}
+              <div className="flex flex-row items-center gap-2 flex-shrink-0">
+                <Select
+                  value={candidateStatus}
+                  onValueChange={async (newValue: string) => {
+                    setCandidateStatus(newValue);
+                    await ResponseService.updateResponse(
+                      { candidate_status: newValue },
+                      call_id,
+                    );
+                    onCandidateStatusChange(call_id, newValue);
+                  }}
+                >
+                  <SelectTrigger className="w-[150px] bg-white border-indigo-200 rounded-lg text-sm">
+                    <SelectValue placeholder="Not Selected" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={CandidateStatus.NO_STATUS}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 bg-gray-400 rounded-full" />
+                        <span className="text-sm">No Status</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value={CandidateStatus.NOT_SELECTED}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 bg-red-500 rounded-full" />
+                        <span className="text-sm">Not Selected</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value={CandidateStatus.POTENTIAL}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 bg-yellow-500 rounded-full" />
+                        <span className="text-sm">Potential</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value={CandidateStatus.SELECTED}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 bg-green-500 rounded-full" />
+                        <span className="text-sm">Selected</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <AlertDialog>
+                  <AlertDialogTrigger>
+                    <Button
+                      disabled={isClicked}
+                      className="bg-red-500 hover:bg-red-600 p-2 h-9 w-9"
+                      size="sm"
+                    >
+                      <TrashIcon size={16} />
+                    </Button>
+                  </AlertDialogTrigger>
+
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete this response.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+
+                      <AlertDialogAction
+                        className="bg-indigo-600 hover:bg-indigo-800"
+                        onClick={async () => {
+                          await onDeleteResponseClick();
+                        }}
+                      >
+                        Continue
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </div>
           </div>
           <div className="bg-slate-200 rounded-2xl min-h-[120px] p-4 px-5 my-3">
-            <p className="font-semibold my-2">General Summary</p>
+            <div className="flex justify-between items-center mb-4">
+              <p className="font-semibold">General Summary</p>
+              <Select value={progressStyle} onValueChange={setProgressStyle}>
+                <SelectTrigger className="w-[200px] bg-slate-50 rounded-lg">
+                  <SelectValue placeholder="Select style" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="modern">Modern Gauge</SelectItem>
+                  <SelectItem value="linear">Linear Bar</SelectItem>
+                  <SelectItem value="pill">Progress Pill</SelectItem>
+                  <SelectItem value="bullet">Bullet Graph</SelectItem>
+                  <SelectItem value="segmented">Segmented</SelectItem>
+                  <SelectItem value="donut">Donut Chart</SelectItem>
+                  <SelectItem value="radial">Radial Bar</SelectItem>
+                  <SelectItem value="wave">Wave Progress</SelectItem>
+                  <SelectItem value="badge">Badge</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             <div className="grid grid-cols-3 gap-4 my-2 mt-4 ">
-              {analytics?.overallScore !== undefined && (
+              {analytics?.overallScore !== undefined && analytics?.overallScore !== null && analytics?.overallScore !== 0 && (
                 <div className="flex flex-col gap-3 text-sm p-4 rounded-2xl bg-slate-50">
-                  <div className="flex flex-row gap-2 align-middle">
-                    <CircularProgress
-                      classNames={{
-                        svg: "w-28 h-28 drop-shadow-md",
-                        indicator: "stroke-indigo-600",
-                        track: "stroke-indigo-600/10",
-                        value: "text-3xl font-semibold text-indigo-600",
-                      }}
-                      value={analytics?.overallScore}
-                      strokeWidth={4}
-                      showValueLabel={true}
-                      formatOptions={{ signDisplay: "never" }}
-                    />
-                    <p className="font-medium my-auto text-xl">
-                      Overall Hiring Score
-                    </p>
+                  <div className="flex flex-row gap-4 align-middle justify-center">
+                    {renderProgressComponent(
+                      analytics.overallScore,
+                      100,
+                      "Overall Hiring Score"
+                    )}
                   </div>
                   <div className="">
                     <div className="font-medium ">
@@ -331,30 +375,14 @@ function CallInfo({
                   </div>
                 </div>
               )}
-              {analytics?.communication && (
+              {analytics?.communication && analytics?.communication.score !== 0 && (
                 <div className="flex flex-col gap-3 text-sm p-4 rounded-2xl bg-slate-50">
-                  <div className="flex flex-row gap-2 align-middle">
-                    <CircularProgress
-                      classNames={{
-                        svg: "w-28 h-28 drop-shadow-md",
-                        indicator: "stroke-indigo-600",
-                        track: "stroke-indigo-600/10",
-                        value: "text-3xl font-semibold text-indigo-600",
-                      }}
-                      value={analytics?.communication.score}
-                      maxValue={10}
-                      minValue={0}
-                      strokeWidth={4}
-                      showValueLabel={true}
-                      valueLabel={
-                        <div className="flex items-baseline">
-                          {analytics?.communication.score ?? 0}
-                          <span className="text-xl ml-0.5">/10</span>
-                        </div>
-                      }
-                      formatOptions={{ signDisplay: "never" }}
-                    />
-                    <p className="font-medium my-auto text-xl">Communication</p>
+                  <div className="flex flex-row gap-4 align-middle justify-center">
+                    {renderProgressComponent(
+                      analytics.communication.score,
+                      10,
+                      "Communication"
+                    )}
                   </div>
                   <div className="">
                     <div className="font-medium ">
