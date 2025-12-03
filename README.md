@@ -97,6 +97,20 @@ The main dashboard displays all your created interviews with key information and
 
 <img src="./public/Interviews_page.png" alt="Interviews Page" width="800">
 
+#### Interviews Page - List & Grid View
+
+View your interviews in both grid and list formats with advanced search and pagination capabilities.
+
+<img src="./public/Interviews_page_1.png" alt="Interviews Page View Options" width="800">
+
+**View Features:**
+- **Grid View:** Display interviews as cards (4 per row) for visual overview
+- **List View:** Compact row-based display for efficient browsing
+- **Search Functionality:** Real-time search across interview names and descriptions
+- **Pagination:** Navigate through interviews with customizable items per page (3-20)
+- **Quick Filters:** Display skills, keywords, and respondent information at a glance
+- **Create Button:** Quick access to create new interviews from the header
+
 #### Create Interview
 
 Create new interviews with customized configurations tailored to your hiring needs.
