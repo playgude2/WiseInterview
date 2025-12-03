@@ -6,11 +6,17 @@ const getAllInterviews = async (userId: string, organizationId: string) => {
   try {
     const { data: clientData, error: clientError } = await supabase
       .from("interview")
-      .select(`*`)
+      .select(`*, organization(name)`)
       .or(`organization_id.eq.${organizationId},user_id.eq.${userId}`)
       .order("created_at", { ascending: false });
 
-    return [...(clientData || [])];
+    // Map organization data to organization_name field
+    const interviewsWithOrgName = (clientData || []).map((interview: any) => ({
+      ...interview,
+      organization_name: interview.organization?.name || null,
+    }));
+
+    return interviewsWithOrgName;
   } catch (error) {
     console.log(error);
 
@@ -30,21 +36,26 @@ const getInterviewById = async (id: string) => {
 
     const normalizedId = slugify(id);
 
-    // First try exact ID match
+    // First try exact ID match with organization name
     const { data: idMatch } = await supabase
       .from("interview")
-      .select(`*`)
+      .select(`*, organization(name)`)
       .eq("id", id)
       .single();
 
     if (idMatch) {
-      return idMatch;
+      const matchWithOrgName = {
+        ...idMatch,
+        organization_name: (idMatch as any).organization?.name || null,
+      };
+      
+return matchWithOrgName;
     }
 
     // If not found by ID, try to match by slug (with normalization)
     const { data: allData } = await supabase
       .from("interview")
-      .select(`*`)
+      .select(`*, organization(name)`)
       .limit(1000);
 
     if (allData) {
@@ -53,7 +64,14 @@ const getInterviewById = async (id: string) => {
           slugify(interview.readable_slug || "") === normalizedId
       );
 
-      return matched || null;
+      if (matched) {
+        const matchWithOrgName = {
+          ...matched,
+          organization_name: (matched as any).organization?.name || null,
+        };
+        
+return matchWithOrgName;
+      }
     }
 
     return null;

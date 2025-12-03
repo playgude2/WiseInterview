@@ -4,11 +4,11 @@ Wise Interview is an open source platform for companies to conduct AI powered hi
 
 ## Key Features
 
-- **🎯 Interview Creation:** Instantly generate tailored interview questions from any job description.
-- **🔗 One-Click Sharing:** Generate and share unique interview links with candidates in seconds.
-- **🎙️ AI Voice Interviews:** Let our AI conduct natural, conversational interviews that adapt to candidate responses.
-- **📊 Smart Analysis:** Get detailed insights and scores for each interview response, powered by advanced AI.
-- **📈 Comprehensive Dashboard:** Track all candidate performances and overall stats.
+-  Interview Creation:** Instantly generate tailored interview questions from any job description.
+-  One-Click Sharing:** Generate and share unique interview links with candidates in seconds.
+-  AI Voice Interviews:** Let our AI conduct natural, conversational interviews that adapt to candidate responses.
+-  Smart Analysis:** Get detailed insights and scores for each interview response, powered by advanced AI.
+-  Comprehensive Dashboard:** Track all candidate performances and overall stats.
 
 ## Initial Setup
 
@@ -66,6 +66,90 @@ We use Google API to generate questions for interviews and analyze responses.
 2. Enable the required APIs (Gemini API or relevant Google APIs)
 3. Create an API key from the Credentials page
 4. Add the API key to the `.env` file in `GOOGLE_API_KEY`
+
+## Platform Overview
+
+### 1. Interviewers Management
+
+The **Interviewers Page** allows you to browse and manage AI interviewers available on the platform. Each interviewer has specific characteristics including empathy, rapport, exploration skills, and speed.
+
+<img src="./public/Interviewers_page.png" alt="Interviewers Page" width="800">
+
+#### Interviewer Details Modal
+
+Click on any interviewer card to view detailed information including their bio, voice introduction, and comprehensive metrics visualization.
+
+<img src="./public/Interviewer_details.png" alt="Interviewer Details" width="600">
+
+**Key Features:**
+- **Voice Introduction:** Hear the interviewer's voice and personality
+- **Metrics Display:** Visual representation of interviewer characteristics:
+  - **Empathy:** How well the interviewer understands candidate emotions
+  - **Rapport:** Ability to build connection with candidates
+  - **Exploration:** Depth of questioning and topic exploration
+  - **Speed:** Interview pace and conversation flow
+
+### 2. Interview Creation & Management
+
+#### Interviews Page
+
+The main dashboard displays all your created interviews with key information and quick actions.
+
+<img src="./public/Interviews_page.png" alt="Interviews Page" width="800">
+
+#### Create Interview
+
+Create new interviews with customized configurations tailored to your hiring needs.
+
+<img src="./public/create_interview.png" alt="Create Interview" width="800">
+
+**Interview Creation Features:**
+- **Job Description Input:** Paste job descriptions for AI-powered question generation
+- **AI Question Generation:** Automatically generates interview questions using Google Gemini AI
+- **Interviewer Selection:** Choose from multiple AI interviewers with different personalities
+- **Share Links:** Generate unique interview links to share with candidates
+- **Theme Customization:** Customize the interview interface with brand colors
+
+### 3. Live Interview Experience
+
+#### Candidate Interview Session
+
+The live interview page showcases the AI interviewer conducting a real-time conversation with a candidate.
+
+<img src="./public/Live_Interview_Page.png" alt="Live Interview" width="800">
+
+**Interview Capabilities:**
+- **Real-Time Voice Conversation:** AI interviewer speaks naturally and listens to candidate responses
+- **Adaptive Questions:** Questions adapt based on candidate answers using AI analysis
+- **Response Recording:** All responses are recorded and stored securely
+- **Powered by Retell AI:** Voice call management and recording using Retell AI's infrastructure
+- **Flowise Integration:** AI conversation orchestration through Flowise for intelligent question routing and response analysis
+
+### 4. Candidate Overview - List View
+
+Track all candidates who have participated in interviews with aggregated statistics and performance metrics.
+
+<img src="./public/list_candidate_overview.png" alt="Candidate List Overview" width="800">
+
+**List Features:**
+- View all candidates in a sortable table format
+- Quick performance overview
+- Response count and interview statistics
+- Quick action buttons for detailed analysis
+
+### 5. Candidate-Specific Overview
+
+Get detailed insights into individual candidate performance across all interviews.
+
+<img src="./public/candidate_overview.png" alt="Candidate Overview" width="800">
+
+**Detailed Analytics:**
+- Individual interview scores and metrics
+- Response quality analysis
+- Skill assessment breakdown
+- Performance trends across multiple interviews
+- AI-generated feedback and recommendations
+- Response playback and review
 
 ## Getting Started locally
 

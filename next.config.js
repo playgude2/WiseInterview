@@ -15,6 +15,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "img.clerk.com",
       },
+      {
+        protocol: "https",
+        hostname: "api.dicebear.com",
+      },
     ],
   },
   webpack: (webpackConfig, { webpack }) => {
