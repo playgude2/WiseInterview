@@ -36,47 +36,44 @@ const getInterviewById = async (id: string) => {
 
     const normalizedId = slugify(id);
 
-    // First try exact ID match with organization name
-    const { data: idMatch } = await supabase
-      .from("interview")
-      .select(`*, organization(name)`)
-      .eq("id", id)
-      .single();
-
-    if (idMatch) {
-      const matchWithOrgName = {
-        ...idMatch,
-        organization_name: (idMatch as any).organization?.name || null,
-      };
-      
-return matchWithOrgName;
-    }
-
-    // If not found by ID, try to match by slug (with normalization)
-    const { data: allData } = await supabase
+    // Fetch all interviews (handles both ID and slug-based lookups)
+    const { data: allData, error: fetchError } = await supabase
       .from("interview")
       .select(`*, organization(name)`)
       .limit(1000);
 
-    if (allData) {
-      const matched = allData.find(
-        (interview: any) =>
-          slugify(interview.readable_slug || "") === normalizedId
-      );
+    if (fetchError || !allData) {
+      console.log("Error fetching interviews:", fetchError);
 
-      if (matched) {
-        const matchWithOrgName = {
-          ...matched,
-          organization_name: (matched as any).organization?.name || null,
-        };
-        
-return matchWithOrgName;
-      }
+      return null;
+    }
+
+    // First try exact ID match
+    const exactMatch = allData.find((interview: any) => interview.id === id);
+
+    if (exactMatch) {
+      return {
+        ...exactMatch,
+        organization_name: (exactMatch as any).organization?.name || null,
+      };
+    }
+
+    // If not found by ID, try to match by slug (with normalization)
+    const slugMatch = allData.find(
+      (interview: any) =>
+        slugify(interview.readable_slug || "") === normalizedId
+    );
+
+    if (slugMatch) {
+      return {
+        ...slugMatch,
+        organization_name: (slugMatch as any).organization?.name || null,
+      };
     }
 
     return null;
   } catch (error) {
-    console.log(error);
+    console.log("Error in getInterviewById:", error);
 
     return null;
   }
