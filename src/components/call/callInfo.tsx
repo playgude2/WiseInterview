@@ -473,7 +473,9 @@ function CallInfo({
               <div
                 className="text-sm p-4 rounded-2xl leading-5 bg-slate-50"
                 // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: marked(transcript) }}
+                dangerouslySetInnerHTML={{
+                  __html: marked.parse(transcript) as string,
+                }}
               />
             </ScrollArea>
           </div>

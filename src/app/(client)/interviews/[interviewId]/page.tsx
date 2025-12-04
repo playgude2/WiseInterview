@@ -5,7 +5,8 @@ import { Switch } from "@/components/ui/switch";
 import React, { useState, useEffect } from "react";
 import { useOrganization } from "@clerk/nextjs";
 import { useInterviews } from "@/contexts/interviews.context";
-import { Share2, Filter, Pencil, UserIcon, Eye, Palette, RefreshCw } from "lucide-react";
+import { Share2, Filter, Pencil, UserIcon, Eye, Palette, RefreshCw, FileText } from "lucide-react";
+import { generateAnalysisPDF, AnalysisPDFData } from "@/lib/pdf-export";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useRouter } from "next/navigation";
 import { ResponseService } from "@/services/responses.service";
@@ -304,6 +305,53 @@ function InterviewHome({ params, searchParams }: Props) {
     }
   };
 
+  const handleDownloadAnalysisPDF = async (response: Response) => {
+    try {
+      if (!response.analytics || !response.name || !interview?.name) {
+        toast.error("Unable to generate PDF", {
+          description: "Missing required data for PDF generation.",
+          position: "bottom-right",
+          duration: 3000,
+        });
+
+        return;
+      }
+
+      const pdfData: AnalysisPDFData = {
+        candidateName: response.name,
+        interviewName: interview.name,
+        interviewerName: "AI Interviewer",
+        respondentEmail: response.email,
+        overallScore: response.analytics.overallScore ?? 0,
+        communicationScore: response.analytics.communication?.score ?? 0,
+        overallFeedback: response.analytics.overallFeedback ?? "No feedback available",
+        communicationFeedback:
+          response.analytics.communication?.feedback ?? "No feedback available",
+        questions: response.analytics.questionSummaries ?? [],
+        softSkillSummary: response.analytics.softSkillSummary ?? "",
+        createdAt: response.created_at instanceof Date ? response.created_at.toISOString() : String(response.created_at),
+        organizationName: organization?.name,
+        organizationLogo: organization?.imageUrl,
+      };
+
+      const fileName = `${response.name.replace(/\s+/g, "-")}-analysis-${new Date().toISOString().split("T")[0]}.pdf`;
+      await generateAnalysisPDF(pdfData, fileName);
+
+      toast.success("PDF Generated", {
+        description: `Analysis report for ${response.name} has been downloaded.`,
+        position: "bottom-right",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("Failed to generate PDF", {
+        description: "An error occurred while generating the PDF.",
+        position: "bottom-right",
+        duration: 3000,
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col w-full h-full m-2 bg-white">
       {loading ? (
@@ -370,6 +418,38 @@ function InterviewHome({ params, searchParams }: Props) {
                 >
                   <span className="text-black flex flex-row gap-4">
                     Preview
+                  </span>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    className="bg-transparent shadow-none text-xs text-indigo-600 px-0 h-7 hover:scale-110 relative"
+                    disabled={!searchParams.call}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      if (searchParams.call) {
+                        const selectedResponse = responses?.find(
+                          (r) => r.call_id === searchParams.call,
+                        );
+                        if (selectedResponse) {
+                          handleDownloadAnalysisPDF(selectedResponse);
+                        }
+                      }
+                    }}
+                  >
+                    <FileText size={16} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent
+                  className="bg-zinc-300"
+                  side="bottom"
+                  sideOffset={4}
+                >
+                  <span className="text-black flex flex-row gap-4">
+                    Download PDF
                   </span>
                 </TooltipContent>
               </Tooltip>
