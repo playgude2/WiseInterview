@@ -17,7 +17,7 @@ import { formatTimestampToDateHHMM } from "@/lib/utils";
 import CallInfo from "@/components/call/callInfo";
 import SummaryInfo from "@/components/dashboard/interview/summaryInfo";
 import { InterviewService } from "@/services/interviews.service";
-import EditInterview from "@/components/dashboard/interview/editInterview";
+import EditInterviewModal from "@/components/dashboard/interview/editInterviewModal";
 import Modal from "@/components/dashboard/Modal";
 import { toast } from "sonner";
 import { ChromePicker } from "react-color";
@@ -68,6 +68,7 @@ function InterviewHome({ params, searchParams }: Props) {
   const { organization } = useOrganization();
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
   const [isReanalyzing, setIsReanalyzing] = useState<boolean>(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
 
   const seeInterviewPreviewPage = () => {
     const protocol = base_url?.includes("localhost") ? "http" : "https";
@@ -484,9 +485,8 @@ function InterviewHome({ params, searchParams }: Props) {
                   <Button
                     className="bg-transparent shadow-none text-xs text-indigo-600 px-0 h-7 hover:scale-110 relative"
                     onClick={(event) => {
-                      router.push(
-                        `/interviews/${params.interviewId}?edit=true`,
-                      );
+                      event.stopPropagation();
+                      setIsEditModalOpen(true);
                     }}
                   >
                     <Pencil size={16} />
@@ -700,8 +700,6 @@ function InterviewHome({ params, searchParams }: Props) {
                     onDeleteResponse={handleDeleteResponse}
                     onCandidateStatusChange={handleCandidateStatusChange}
                   />
-                ) : searchParams.edit ? (
-                  <EditInterview interview={interview} />
                 ) : (
                   <SummaryInfo responses={responses} interview={interview} />
                 )}
@@ -742,6 +740,16 @@ function InterviewHome({ params, searchParams }: Props) {
           onClose={closeSharePopup}
         />
       )}
+      <Modal
+        open={isEditModalOpen}
+        closeOnOutsideClick={false}
+        onClose={() => setIsEditModalOpen(false)}
+      >
+        <EditInterviewModal
+          interview={interview}
+          onClose={() => setIsEditModalOpen(false)}
+        />
+      </Modal>
     </div>
   );
 }

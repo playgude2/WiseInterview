@@ -435,10 +435,16 @@ function Interviews() {
       </div>
 
       {isCreateModalOpen && (
-        <CreateInterviewModal
+        <Modal
           open={isCreateModalOpen}
-          setOpen={setIsCreateModalOpen}
-        />
+          closeOnOutsideClick={false}
+          onClose={() => setIsCreateModalOpen(false)}
+        >
+          <CreateInterviewModal
+            open={isCreateModalOpen}
+            setOpen={setIsCreateModalOpen}
+          />
+        </Modal>
       )}
     </main>
   );

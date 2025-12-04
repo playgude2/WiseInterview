@@ -146,8 +146,7 @@ function DetailsPopup({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/30 z-40 flex items-center justify-center">
-        <div className="text-center w-[38rem] bg-white rounded-lg shadow-lg p-6">
+      <div className="text-center w-[38rem]">
         <h1 className="text-xl font-semibold">Create an Interview</h1>
         <div className="flex flex-col justify-center items-start mt-4 ml-10 mr-8">
           <div className="flex flex-row justify-center items-center">
@@ -346,7 +345,6 @@ function DetailsPopup({
               I&apos;ll do it myself
             </Button>
           </div>
-        </div>
         </div>
       </div>
       <Modal
