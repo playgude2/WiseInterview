@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import React, { useState, useEffect } from "react";
 import { useOrganization } from "@clerk/nextjs";
 import { useInterviews } from "@/contexts/interviews.context";
-import { Share2, Filter, Pencil, UserIcon, Eye, Palette } from "lucide-react";
+import { Share2, Filter, Pencil, UserIcon, Eye, Palette, RefreshCw } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useRouter } from "next/navigation";
 import { ResponseService } from "@/services/responses.service";
@@ -66,6 +66,7 @@ function InterviewHome({ params, searchParams }: Props) {
   const [iconColor, seticonColor] = useState<string>("#4F46E5");
   const { organization } = useOrganization();
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
+  const [isReanalyzing, setIsReanalyzing] = useState<boolean>(false);
 
   const seeInterviewPreviewPage = () => {
     const protocol = base_url?.includes("localhost") ? "http" : "https";
@@ -254,6 +255,55 @@ function InterviewHome({ params, searchParams }: Props) {
     );
   };
 
+  const handleReanalyzeAll = async () => {
+    if (!interview) {
+      return;
+    }
+
+    setIsReanalyzing(true);
+    try {
+      const response = await fetch("/api/reanalyze-interview", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          interviewId: params.interviewId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Re-analysis Complete", {
+          description: `Successfully re-analyzed ${data.reanalyzedCount} responses with new scoring validation rules.`,
+          position: "bottom-right",
+          duration: 3000,
+        });
+
+        // Refresh the responses to get updated analytics
+        const updatedResponses = await ResponseService.getAllResponses(
+          params.interviewId,
+        );
+        setResponses(updatedResponses);
+      } else {
+        toast.error("Re-analysis Failed", {
+          description: data.error || "Failed to re-analyze responses",
+          position: "bottom-right",
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Error re-analyzing interview:", error);
+      toast.error("Error", {
+        description: "Failed to re-analyze responses. Please try again.",
+        duration: 3000,
+      });
+    } finally {
+      setIsReanalyzing(false);
+    }
+  };
+
   return (
     <div className="flex flex-col w-full h-full m-2 bg-white">
       {loading ? (
@@ -368,6 +418,29 @@ function InterviewHome({ params, searchParams }: Props) {
                   sideOffset={4}
                 >
                   <span className="text-black flex flex-row gap-4">Edit</span>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    className="bg-transparent shadow-none text-xs text-indigo-600 px-0 h-7 hover:scale-110 relative"
+                    disabled={isReanalyzing}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleReanalyzeAll();
+                    }}
+                  >
+                    <RefreshCw size={16} className={isReanalyzing ? "animate-spin" : ""} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent
+                  className="bg-zinc-300"
+                  side="bottom"
+                  sideOffset={4}
+                >
+                  <span className="text-black flex flex-row gap-4">Re-analyze Scores</span>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

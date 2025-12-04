@@ -361,9 +361,21 @@ function InterviewCard({
           <a
             href={`/interviews/${id}`}
             className="flex-1"
-            onClick={(e) => {
+            onClick={async (e) => {
               if (isFetching) {
                 e.preventDefault();
+
+                return;
+              }
+
+              try {
+                await fetch(`${base_url}/api/reanalyze-interview`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ interviewId: id }),
+                });
+              } catch (error) {
+                console.error("Error reanalyzing interview:", error);
               }
             }}
           >

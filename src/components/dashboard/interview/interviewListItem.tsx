@@ -254,7 +254,27 @@ function InterviewListItem({
 
       {/* Action Buttons */}
       <div className="flex-shrink-0 flex gap-2 ml-4">
-        <a href={`/interviews/${id}`} className="flex-shrink-0">
+        <a
+          href={`/interviews/${id}`}
+          className="flex-shrink-0"
+          onClick={async (e) => {
+            if (isFetching) {
+              e.preventDefault();
+
+              return;
+            }
+
+            try {
+              await fetch(`${base_url}/api/reanalyze-interview`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ interviewId: id }),
+              });
+            } catch (error) {
+              console.error("Error reanalyzing interview:", error);
+            }
+          }}
+        >
           <Button
             className="text-xs h-8 px-2 bg-indigo-600 hover:bg-indigo-700 text-white"
             disabled={isFetching}

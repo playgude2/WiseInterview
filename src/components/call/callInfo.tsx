@@ -167,8 +167,21 @@ function CallInfo({
     }
   };
 
+  const getScoreColor = (score: number, maxValue: number = 100): string => {
+    const percentage = (score / maxValue) * 100;
+    if (percentage < 36) {
+      return "#ef4444";
+    } else if (percentage < 50) {
+      return "#f59e0b";
+    } else {
+      return "#22c55e";
+    }
+  };
+
   const renderProgressComponent = (score: number, maxValue: number, label: string) => {
-    const props = { value: score, maxValue, label };
+    const percentage = (score / maxValue) * 100;
+    const color = getScoreColor(score, maxValue);
+    const props = { value: score, maxValue, label, color };
 
     switch (progressStyle) {
       case "linear":

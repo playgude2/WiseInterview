@@ -16,9 +16,15 @@ ${mainInterviewQuestions}
 Based on this transcript and the provided main interview questions, generate the following analytics in JSON format:
 
 CRITICAL VALIDATION RULE:
-- If the candidate did NOT answer any of the main interview questions, the overall score MUST be 0-15 (failing score).
-- If the candidate answered less than 50% of the main questions, the overall score MUST NOT exceed 35.
+- If the candidate did NOT answer any of the main interview questions:
+  * Overall score MUST be 0-15 (failing score)
+  * Communication score MUST be 1-3/10 (minimal communication to evaluate)
+  * Provide negative or neutral sentiment only
+- If the candidate answered less than 50% of the main questions:
+  * Overall score MUST NOT exceed 35
+  * Communication score MUST NOT exceed 6/10
 - Only give higher scores (36+) when the candidate has provided substantive answers to at least 50% of the questions.
+- When calculating communication score, base it primarily on the actual answers provided. If there are no answers, the communication score must reflect the lack of substantive response.
 
 1. Overall Score (0-100) and Overall Feedback (60 words) - take into account the following factors:
    - Communication Skills: Evaluate the use of language, grammar, and vocabulary. Assess if the interviewee communicated effectively and clearly.

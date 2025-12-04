@@ -37,6 +37,36 @@ interface DataTableProps {
   interviewId: string;
 }
 
+function getScoreColor(score: number): string {
+  if (score < 36) {
+    return "#ef4444";
+  } else if (score < 50) {
+    return "#f59e0b";
+  } else {
+    return "#22c55e";
+  }
+}
+
+function ScoreBar({ score }: { score: number }) {
+  const color = getScoreColor(score);
+  const percentage = Math.min((score / 100) * 100, 100);
+
+  return (
+    <div className="flex items-center gap-2 w-full">
+      <div className="flex-1 bg-gray-200 rounded h-2 overflow-hidden">
+        <div
+          className="h-full rounded transition-all duration-300"
+          style={{
+            width: `${percentage}%`,
+            backgroundColor: color,
+          }}
+        />
+      </div>
+      <span className="text-sm font-semibold min-w-[2rem] text-right">{score}</span>
+    </div>
+  );
+}
+
 function DataTable({ data, interviewId }: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([
     { id: "overallScore", desc: true },
@@ -138,8 +168,8 @@ function DataTable({ data, interviewId }: DataTableProps) {
         );
       },
       cell: ({ row }) => (
-        <div className="min-h-[2.6em] flex items-center justify-center">
-          {row.getValue("overallScore") ?? "-"}
+        <div className="min-h-[2.6em] flex items-center justify-center px-2">
+          <ScoreBar score={row.getValue("overallScore") ?? 0} />
         </div>
       ),
       sortingFn: (rowA, rowB, columnId) => {
@@ -163,11 +193,26 @@ function DataTable({ data, interviewId }: DataTableProps) {
           </Button>
         );
       },
-      cell: ({ row }) => (
-        <div className="min-h-[2.6em] flex items-center justify-center">
-          {row.getValue("communicationScore") ?? "-"}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const commScore = (row.getValue("communicationScore") as number) ?? 0;
+
+        return (
+          <div className="min-h-[2.6em] flex items-center justify-center px-2">
+            <div className="flex items-center gap-2 w-full">
+              <div className="flex-1 bg-gray-200 rounded h-2 overflow-hidden">
+                <div
+                  className="h-full rounded transition-all duration-300"
+                  style={{
+                    width: `${Math.min(commScore * 10, 100)}%`,
+                    backgroundColor: getScoreColor(commScore * 10),
+                  }}
+                />
+              </div>
+              <span className="text-sm font-semibold min-w-[1.5rem] text-right">{commScore}/10</span>
+            </div>
+          </div>
+        );
+      },
       sortingFn: (rowA, rowB, columnId) => {
         const a = rowA.getValue(columnId) as number | null;
         const b = rowB.getValue(columnId) as number | null;
