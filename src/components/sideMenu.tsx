@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { PlayCircleIcon, SpeechIcon } from "lucide-react";
+import { PlayCircleIcon, SpeechIcon, Briefcase, Zap, Phone } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 function SideMenu() {
@@ -34,6 +34,39 @@ function SideMenu() {
           >
             <SpeechIcon className="font-thin mr-2" />
             <p className="font-medium ">Interviewers</p>
+          </div>
+          <div
+            className={`flex flex-row p-3 rounded-md hover:bg-slate-200 cursor-pointer ${
+              pathname.includes("/dashboard/jobs")
+                ? "bg-indigo-200"
+                : "bg-slate-100"
+            }`}
+            onClick={() => router.push("/dashboard/jobs")}
+          >
+            <Briefcase className="font-thin mr-2" />
+            <p className="font-medium ">Jobs</p>
+          </div>
+          <div
+            className={`flex flex-row p-3 rounded-md hover:bg-slate-200 cursor-pointer ${
+              pathname.includes("/dashboard/initial-calls")
+                ? "bg-indigo-200"
+                : "bg-slate-100"
+            }`}
+            onClick={() => router.push("/dashboard/initial-calls")}
+          >
+            <Phone className="font-thin mr-2" />
+            <p className="font-medium ">Initial Calls</p>
+          </div>
+          <div
+            className={`flex flex-row p-3 rounded-md hover:bg-slate-200 cursor-pointer ${
+              pathname.includes("/dashboard/ats-check")
+                ? "bg-indigo-200"
+                : "bg-slate-100"
+            }`}
+            onClick={() => router.push("/dashboard/ats-check")}
+          >
+            <Zap className="font-thin mr-2" />
+            <p className="font-medium ">ATS Check</p>
           </div>
         </div>
       </div>

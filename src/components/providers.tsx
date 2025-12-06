@@ -9,6 +9,7 @@ import { InterviewProvider } from "@/contexts/interviews.context";
 import { ResponseProvider } from "@/contexts/responses.context";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { ClientProvider } from "@/contexts/clients.context";
+import { JobPostProvider } from "@/contexts/jobPost.context";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const providers = ({ children }: ThemeProviderProps) => {
     InterviewerProvider,
     ResponseProvider,
     ClientProvider,
+    JobPostProvider,
   ]);
 
   return (
